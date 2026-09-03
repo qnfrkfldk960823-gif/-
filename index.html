@@ -35,9 +35,19 @@
   <div id="formPanel" style="display:none; margin-top:16px; border:2px solid #1d4ed8; border-radius:12px; padding:16px; background:#f8faff;">
     <h3 style="margin-top:0; font-size: 15px;" id="formTitle">일정 추가</h3>
     <label style="font-size: 13px; color: #555;">날짜</label>
-    <input type="date" id="f_date" style="width:100%; padding:8px; margin:4px 0 12px; box-sizing:border-box; border:1px solid #ddd; border-radius:6px;">
+    <div style="display:flex; gap:6px; margin:4px 0 12px;">
+      <select id="f_year" style="flex:1.2; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:14px;"></select>
+      <select id="f_month" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:14px;"></select>
+      <select id="f_day" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:14px;"></select>
+    </div>
     <label style="font-size: 13px; color: #555;">시간</label>
-    <input type="time" id="f_time" style="width:100%; padding:8px; margin:4px 0 12px; box-sizing:border-box; border:1px solid #ddd; border-radius:6px;">
+    <div style="display:flex; gap:6px; margin:4px 0 12px; align-items:center;">
+      <select id="f_hour" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:14px;"></select>
+      <span>시</span>
+      <select id="f_minute" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:6px; font-size:14px;"></select>
+      <span>분</span>
+      <button type="button" id="clearTimeBtn" style="border:none; background:#eee; border-radius:6px; padding:8px 10px; font-size:12px; cursor:pointer;">미정</button>
+    </div>
     <label style="font-size: 13px; color: #555;">장소</label>
     <input type="text" id="f_place" placeholder="예: 3공구 현장" style="width:100%; padding:8px; margin:4px 0 12px; box-sizing:border-box; border:1px solid #ddd; border-radius:6px;">
     <label style="font-size: 13px; color: #555;">참석자</label>
@@ -98,6 +108,67 @@ let schedules = [];
 let viewYear, viewMonth;
 let selectedDate = null;
 let currentPhoto = null;
+
+function populateDateTimeSelects() {
+  const yearSel = document.getElementById('f_year');
+  const monthSel = document.getElementById('f_month');
+  const daySel = document.getElementById('f_day');
+  const hourSel = document.getElementById('f_hour');
+  const minSel = document.getElementById('f_minute');
+  const curYear = new Date().getFullYear();
+  yearSel.innerHTML = '';
+  for (let y = curYear - 1; y <= curYear + 2; y++) {
+    yearSel.innerHTML += `<option value="${y}">${y}년</option>`;
+  }
+  monthSel.innerHTML = '';
+  for (let m = 1; m <= 12; m++) {
+    monthSel.innerHTML += `<option value="${m}">${m}월</option>`;
+  }
+  daySel.innerHTML = '';
+  for (let d = 1; d <= 31; d++) {
+    daySel.innerHTML += `<option value="${d}">${d}일</option>`;
+  }
+  hourSel.innerHTML = '<option value="">--</option>';
+  for (let h = 0; h < 24; h++) {
+    hourSel.innerHTML += `<option value="${h}">${String(h).padStart(2,'0')}</option>`;
+  }
+  minSel.innerHTML = '<option value="">--</option>';
+  for (let mi = 0; mi < 60; mi += 5) {
+    minSel.innerHTML += `<option value="${mi}">${String(mi).padStart(2,'0')}</option>`;
+  }
+}
+populateDateTimeSelects();
+
+function setDateSelects(dateStr) {
+  if (!dateStr) return;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  document.getElementById('f_year').value = y;
+  document.getElementById('f_month').value = m;
+  document.getElementById('f_day').value = d;
+}
+function getDateFromSelects() {
+  const y = document.getElementById('f_year').value;
+  const m = String(document.getElementById('f_month').value).padStart(2,'0');
+  const d = String(document.getElementById('f_day').value).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function setTimeSelects(timeStr) {
+  if (!timeStr) { document.getElementById('f_hour').value = ''; document.getElementById('f_minute').value = ''; return; }
+  const [h, mi] = timeStr.split(':').map(Number);
+  document.getElementById('f_hour').value = h;
+  const roundedMin = Math.round(mi / 5) * 5;
+  document.getElementById('f_minute').value = roundedMin >= 60 ? 55 : roundedMin;
+}
+function getTimeFromSelects() {
+  const h = document.getElementById('f_hour').value;
+  const mi = document.getElementById('f_minute').value;
+  if (h === '' || mi === '') return '';
+  return `${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;
+}
+document.getElementById('clearTimeBtn').addEventListener('click', () => {
+  document.getElementById('f_hour').value = '';
+  document.getElementById('f_minute').value = '';
+});
 
 function todayStr() {
   const d = new Date();
@@ -279,7 +350,9 @@ function openForm() {
 function closeForm() {
   document.getElementById('formPanel').style.display = 'none';
   editingId = null;
-  ['f_date','f_time','f_place','f_others','f_note'].forEach(id => document.getElementById(id).value = '');
+  ['f_place','f_others','f_note'].forEach(id => document.getElementById(id).value = '');
+  setDateSelects(todayStr());
+  setTimeSelects('');
   document.getElementById('f_exec').checked = false;
   document.getElementById('f_siteT').checked = false;
   document.getElementById('f_siteB').checked = false;
@@ -292,8 +365,8 @@ window.openEdit = function(id) {
   if (!s) return;
   editingId = id;
   document.getElementById('formTitle').textContent = '일정 수정';
-  document.getElementById('f_date').value = s.date;
-  document.getElementById('f_time').value = s.time || '';
+  setDateSelects(s.date);
+  setTimeSelects(s.time || '');
   document.getElementById('f_place').value = s.place || '';
   document.getElementById('f_exec').checked = !!s.exec;
   document.getElementById('f_siteT').checked = !!s.siteT;
@@ -314,7 +387,7 @@ window.deleteItem = async function(id) {
 
 document.getElementById('addBtn').addEventListener('click', () => {
   document.getElementById('formTitle').textContent = '일정 추가';
-  document.getElementById('f_date').value = selectedDate;
+  setDateSelects(selectedDate);
   openForm();
 });
 document.getElementById('cancelBtn').addEventListener('click', closeForm);
@@ -348,13 +421,13 @@ document.getElementById('f_note').addEventListener('paste', async (e) => {
 });
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
-  const date = document.getElementById('f_date').value;
+  const date = getDateFromSelects();
   const errEl = document.getElementById('formError');
   if (!date) { errEl.textContent = '날짜를 입력해주세요.'; errEl.style.display = 'block'; return; }
   const id = editingId || (Date.now() + '_' + Math.random().toString(36).slice(2,7));
   const row = {
     id, date,
-    time: document.getElementById('f_time').value,
+    time: getTimeFromSelects(),
     place: document.getElementById('f_place').value.trim(),
     exec: document.getElementById('f_exec').checked,
     site_t: document.getElementById('f_siteT').checked,
