@@ -80,11 +80,12 @@
   </div>
 
   <div style="margin-top:18px;">
+    <div style="font-size:11px; color:#999; font-weight:700; letter-spacing:0.5px; margin-bottom:4px;">전체 목록</div>
     <div style="font-size:14px; font-weight:600; margin-bottom:8px;">전체 일정 (날짜 순)</div>
     <div id="allList" style="max-height:400px; overflow-y:auto; border:1px solid #eee; border-radius:10px; padding:8px;"></div>
   </div>
 
-  <div id="dayDetail" style="margin-top:20px; border-top:1px solid #eee; padding-top:14px;"></div>
+  <div id="dayDetail" style="margin-top:28px; border-top:3px solid #1d4ed8; padding-top:16px;"></div>
 </div>
 
 <script>
@@ -308,7 +309,10 @@ function renderAllList() {
     const past = isPast(s.date);
     return `
     <div onclick="jumpToDate('${s.date}')" style="border-bottom:1px solid #f0f0f0; padding:12px 6px; cursor:pointer; opacity:${past ? '0.5' : '1'};">
-      <div style="font-size:15px; font-weight:600;">${dateLabel}${tag} ${s.time ? ' · ' + s.time : ''}</div>
+      <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px;">
+        <div style="font-size:15px; font-weight:600;">${dateLabel}${tag} ${s.time ? ' · ' + s.time : ''}</div>
+        ${s.note ? `<div style="font-size:15px; font-weight:700; color:#1d4ed8;">${s.note}</div>` : ''}
+      </div>
       <div style="font-size:14px; color:#555; margin-top:2px;">${s.place || '(장소 미정)'}</div>
       <div style="margin-top:6px;">${attendeeBadges(s)}</div>
     </div>`;
@@ -327,11 +331,12 @@ function renderDayDetail() {
   const d = new Date(selectedDate + 'T00:00:00');
   const days = ['일','월','화','수','목','금','토'];
   const label = `${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+  const eyebrow = '<div style="font-size:11px; color:#1d4ed8; font-weight:700; letter-spacing:0.5px; margin-bottom:4px;">선택한 날짜 상세</div>';
   if (items.length === 0) {
-    el.innerHTML = `<div style="font-size:14px; font-weight:600; margin-bottom:8px;">${label}</div><div style="text-align:center; color:#999; padding:20px 0; font-size:13px;">등록된 일정이 없습니다</div>`;
+    el.innerHTML = `${eyebrow}<div style="font-size:14px; font-weight:600; margin-bottom:8px;">${label}</div><div style="text-align:center; color:#999; padding:20px 0; font-size:13px;">등록된 일정이 없습니다</div>`;
     return;
   }
-  el.innerHTML = `<div style="font-size:14px; font-weight:600; margin-bottom:8px;">${label}</div>` + items.map(s => `
+  el.innerHTML = `${eyebrow}<div style="font-size:14px; font-weight:600; margin-bottom:8px;">${label}</div>` + items.map(s => `
     <div style="border:1px solid #eee; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
       <div style="display:flex; justify-content:space-between; align-items:start;">
         <div>
