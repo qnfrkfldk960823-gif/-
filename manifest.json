@@ -1,0 +1,11 @@
+{
+  "name": "유선사업부 일정공유",
+  "short_name": "일정공유",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
