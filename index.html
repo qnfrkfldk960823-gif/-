@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>유선사업부 일정공유</title>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon-v2.png">
+<link rel="icon" href="icon-v2.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="일정공유">
@@ -313,7 +313,7 @@ function renderAllList() {
         <div style="font-size:15px; font-weight:600;">${dateLabel}${tag} ${s.time ? ' · ' + s.time : ''}</div>
         ${s.note ? `<div style="font-size:15px; font-weight:700; color:#1d4ed8;">${s.note}</div>` : ''}
       </div>
-      <div style="font-size:14px; color:#555; margin-top:2px;">${s.place || '(장소 미정)'}</div>
+      ${s.place ? `<div style="font-size:14px; color:#555; margin-top:2px;">${s.place}</div>` : ''}
       <div style="margin-top:6px;">${attendeeBadges(s)}</div>
     </div>`;
   }).join('');
@@ -341,7 +341,7 @@ function renderDayDetail() {
       <div style="display:flex; justify-content:space-between; align-items:start;">
         <div>
           <div style="font-weight:600; font-size:14px;">${s.time || '시간 미정'}</div>
-          <div style="font-size:14px; color:#333; margin-top:2px;">${s.place || '(장소 미정)'}</div>
+          ${s.place ? `<div style="font-size:14px; color:#333; margin-top:2px;">${s.place}</div>` : ''}
           <div style="margin-top:6px;">${attendeeBadges(s)}</div>
           ${s.note ? `<div style="font-size:12px; color:#888; margin-top:6px;">${s.note}</div>` : ''}
           ${s.photo ? `<img src="${s.photo}" style="max-width:100%; max-height:140px; border-radius:6px; margin-top:8px; display:block;">` : ''}
