@@ -1,4 +1,16 @@
-<div id="app" style="max-width: 480px; margin: 0 auto; font-family: -apple-system, sans-serif; width: 100%; box-sizing: border-box; padding: 0 4px;">
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>유선사업부 일정공유</title>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; padding: 16px 0; background: #fafafa; }
+</style>
+</head>
+<body>
+<div id="app" style="max-width: 480px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; width: 100%; box-sizing: border-box; padding: 0 16px;">
   <div style="background: linear-gradient(135deg, #1d4ed8, #1e40af); color: white; border-radius: 14px; padding: 18px 20px; margin-bottom: 18px;">
     <div style="font-size: 12px; opacity: 0.85; letter-spacing: 0.5px;">JOINT INSPECTION SCHEDULE</div>
     <div style="font-size: 20px; font-weight: 700; margin-top: 4px;">유선사업부 일정공유</div>
@@ -76,8 +88,9 @@ async function sbFetch(path, options = {}) {
     const text = await res.text().catch(() => res.statusText);
     throw new Error(`${res.status} ${text}`);
   }
-  if (res.status === 204) return null;
-  return res.json();
+  const text = await res.text();
+  if (!text) return null;
+  try { return JSON.parse(text); } catch (e) { return null; }
 }
 
 let editingId = null;
@@ -367,3 +380,5 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
 loadSchedules();
 </script>
+</body>
+</html>
